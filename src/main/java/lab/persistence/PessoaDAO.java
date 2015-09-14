@@ -20,4 +20,8 @@ public class PessoaDAO {
 	public void insert(Pessoa pessoa) {
 		em.persist(pessoa);
 	}
+
+	public Pessoa load(Integer id) {
+		return em.find(Pessoa.class, id);
+	}
 }

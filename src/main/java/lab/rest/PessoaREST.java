@@ -2,8 +2,10 @@ package lab.rest;
 
 import javax.validation.constraints.Size;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 
@@ -13,11 +15,30 @@ import lab.persistence.PessoaDAO;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
 
+import br.gov.frameworkdemoiselle.NotFoundException;
 import br.gov.frameworkdemoiselle.transaction.Transactional;
 import br.gov.frameworkdemoiselle.util.ValidatePayload;
 
 @Path("pessoas")
 public class PessoaREST {
+	@GET
+	@Path("{id}")
+	@Transactional
+	@Produces("application/json")
+	public PessoaBody obter(@PathParam("id") Integer id) throws Exception {
+		Pessoa pessoa = PessoaDAO.getInstance().load(id);
+
+		if (pessoa == null) {
+			throw new NotFoundException();
+		}
+
+		PessoaBody body = new PessoaBody();
+		body.nome = pessoa.getNome();
+		body.email = pessoa.getEmail();
+		body.telefone = pessoa.getTelefone();
+
+		return body;
+	}
 
 	@POST
 	@Transactional
