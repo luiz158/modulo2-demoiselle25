@@ -4,6 +4,11 @@ import javax.validation.constraints.Size;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.Response;
+
+import lab.entity.Pessoa;
+import lab.persistence.PessoaDAO;
 
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -18,11 +23,21 @@ public class PessoaREST {
 	@Transactional
 	@ValidatePayload
 	@Consumes("application/json")
-	public void inserir(PessoaBody body) {
-		System.out.println(body.nome + ", " + body.email);
+	@Produces("text/plain")
+	public Response inserir(PessoaBody body) {
+		Pessoa entity = new Pessoa();
+		entity.setNome(body.nome);
+		entity.setEmail(body.email);
+		entity.setTelefone(body.telefone);
+
+		PessoaDAO.getInstance().insert(entity);
+		Integer id = entity.getId();
+		String url = "http://localhost:8080/cadastro/api/pessoas/" + id;
+		return Response.status(201).header("Location", url).entity(id).build();
 	}
 
 	public static class PessoaBody {
+
 		@NotEmpty
 		@Size(min = 3, max = 50)
 		public String nome;
@@ -35,5 +50,4 @@ public class PessoaREST {
 		@Size(max = 15)
 		public String telefone;
 	}
-	
 }
